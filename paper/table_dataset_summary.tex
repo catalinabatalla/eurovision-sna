@@ -1,0 +1,20 @@
+\begin{table}[htbp]
+\centering
+\caption{Eurovision Voting Networks Dataset Summary across Eras (1975--2025)}
+\label{tab:dataset_summary}
+\small
+\begin{tabular}{l l c c c c c c c c}
+\hline\hline
+Period & Voting System & Years & Finals & $N$ & $E_{\text{weighted}}$ & Mean $W$ & $E_{t \ge 0.5}$ & $E_{t \ge 0.33}$ & Contig. (\%) & ComLang (\%) \\
+\hline
+P1 & Jury only & 1975--1996 & 22 & 35 & 518 & 0.261 & 74 & 151 & 7.7\% & 5.9\% \\
+P2 & Televote rollout & 1997--2008 & 12 & 48 & 615 & 0.387 & 194 & 276 & 8.3\% & 3.2\% \\
+P3 & 50/50 Jury and Televote & 2009--2015 & 7 & 47 & 536 & 0.410 & 172 & 296 & 7.9\% & 3.1\% \\
+P4 & Separate voting (combined) & 2016--2025 & 8 & 45 & 686 & 0.321 & 148 & 255 & 7.8\% & 3.6\% \\
+\hline\hline
+\end{tabular}
+\begin{tablenotes}
+\footnotesize
+\item \textit{Note:} $N$ represents active Grand Final participants/voters in the era; $E_{\text{weighted}}$ denotes directed ties where $W(A \to B) > 0$ for top-$k=3$; $E_{t \ge 0.5}$ and $E_{t \ge 0.33}$ are binarized edges at the main ($0.50$) and robustness ($0.33$) persistence thresholds; Contig. and ComLang show the percentage of directed dyads sharing a land border or official language from CEPII GeoDist.
+\end{tablenotes}
+\end{table}
