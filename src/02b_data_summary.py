@@ -19,7 +19,7 @@ ERAS = {
     "P1": {"span": "1975--1996", "desc": "Jury only", "y0": 1975, "y1": 1996},
     "P2": {"span": "1997--2008", "desc": "Televote rollout", "y0": 1997, "y1": 2008},
     "P3": {"span": "2009--2015", "desc": "50/50 Jury and Televote", "y0": 2009, "y1": 2015},
-    "P4": {"span": "2016--2025", "desc": "Separate voting (combined)", "y0": 2016, "y1": 2025},
+    "P4": {"span": "2016--2024", "desc": "Separate voting (combined)", "y0": 2016, "y1": 2024},
 }
 
 def count_editions(y0, y1):
@@ -91,7 +91,7 @@ def main():
     latex_lines = [
         r"\begin{table}[htbp]",
         r"\centering",
-        r"\caption{Eurovision Voting Networks Dataset Summary across Eras (1975--2025)}",
+        r"\caption{Eurovision Voting Networks Dataset Summary across Eras (1975--2024)}",
         r"\label{tab:dataset_summary}",
         r"\small",
         r"\begin{tabular}{l l c c c c c c c c}",
