@@ -35,7 +35,7 @@ ERAS = {
     "P1": (1975, 1996),
     "P2": (1997, 2008),
     "P3": (2009, 2015),
-    "P4": (2016, 2025),
+    "P4": (2016, 2024),
 }
 
 ISO2_TO_ISO3 = {
@@ -166,6 +166,72 @@ def compute_period_network(df_votes, period_name, year_min, year_max, k=3):
         edgelist_df = edgelist_df.sort_values(by="weight", ascending=False).reset_index(drop=True)
     return adj_matrix, edgelist_df, nodes
 
+def compute_period_rank_network(df_votes, period_name, year_min, year_max):
+    """
+    Compute rank-based robustness directed weighted network for a given period.
+    Within each year, voter i's points to finalist j are converted to normalized ordinal
+    rank scores in [0, 1]:
+      1st place (12 pts) -> 1.0, 2nd (10 pts) -> 0.9, 3rd (8 pts) -> 0.8, down to 10th (1 pt) -> 0.1; 0 otherwise.
+    In case of ties (e.g. combined points in P4), average rank points are used.
+    Averaged across co-participation years:
+      W_rank(A->B) = (sum of annual rank scores A gave B) / (years A voted and B competed in final).
+    Returns adj_matrix (DataFrame).
+    """
+    df_p = df_votes[(df_votes["year"] >= year_min) & (df_votes["year"] <= year_max)].copy()
+
+    voters_in_p = set(df_p["from_iso3"].unique())
+    performers_in_p = set(df_p["to_iso3"].unique())
+    nodes = sorted(list(voters_in_p | performers_in_p))
+
+    # Standard Eurovision ordinal score lookup table for ranks 1 to 10
+    # 1st -> 1.0, 2nd -> 0.9, ..., 10th -> 0.1
+    RANK_POINTS = [1.0, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1]
+
+    # Precompute per-year voters, performers, and pairwise annual rank scores
+    year_voters = {}
+    year_performers = {}
+    year_pair_scores = {} # (year, voter, target) -> score
+
+    for yr, yr_group in df_p.groupby("year"):
+        voters = set(yr_group["from_iso3"].unique())
+        performers = set(yr_group["to_iso3"].unique())
+        year_voters[yr] = voters
+        year_performers[yr] = performers
+
+        for voter, vgroup in yr_group.groupby("from_iso3"):
+            pos_v = vgroup[vgroup["total_points"] > 0].sort_values(by="total_points", ascending=False)
+            if pos_v.empty:
+                continue
+
+            # Compute ranks (handling ties via min/average if any)
+            # Group by points descending to assign standard ranks
+            curr_rank = 0
+            for pts, tie_group in pos_v.groupby("total_points", sort=False):
+                group_len = len(tie_group)
+                assigned_ranks = list(range(curr_rank, min(curr_rank + group_len, 10)))
+                if assigned_ranks:
+                    avg_score = sum(RANK_POINTS[r] for r in assigned_ranks) / group_len
+                    for target in tie_group["to_iso3"]:
+                        if target != voter:
+                            year_pair_scores[(yr, voter, target)] = avg_score
+                curr_rank += group_len
+                if curr_rank >= 10:
+                    break
+
+    adj_matrix = pd.DataFrame(0.0, index=nodes, columns=nodes)
+    years = sorted(list(year_voters.keys()))
+
+    for u in nodes:
+        for v in nodes:
+            if u == v:
+                continue
+            co_years = sum(1 for yr in years if (u in year_voters[yr] and v in year_performers[yr]))
+            if co_years > 0:
+                score_sum = sum(year_pair_scores.get((yr, u, v), 0.0) for yr in years if (u in year_voters[yr] and v in year_performers[yr]))
+                adj_matrix.loc[u, v] = score_sum / co_years
+
+    return adj_matrix
+
 def build_cepii_matrices(all_nodes):
     """
     Extract contig and comlang_off from CEPII dist_cepii.dta aligned to all_nodes index.
@@ -281,14 +347,20 @@ def main():
 
         print(f"  Exported {period}_adj_topk3.csv, {period}_edgelist_topk3.csv, {period}_adj_binary_t05.csv (t=0.5: {adj_bin_t05.values.sum()} edges), and {period}_adj_binary_t033.csv (t=0.33: {adj_bin_t033.values.sum()} edges)")
 
-    # 2. Robustness pipeline (k=2 and k=4)
-    print("\n--- Computing Robustness Networks (k=2 and k=4) ---")
+    # 2. Robustness pipeline (k=2, k=4, and rank-based)
+    print("\n--- Computing Robustness Networks (k=2, k=4, and rank-based) ---")
     for k_val in [2, 4]:
         for period, (y0, y1) in ERAS.items():
             adj_k, edgelist_k, _ = compute_period_network(df_votes, period, y0, y1, k=k_val)
             adj_k.to_csv(os.path.join(DATA_ROBUST, f"{period}_adj_topk{k_val}.csv"))
             edgelist_k.to_csv(os.path.join(DATA_ROBUST, f"{period}_edgelist_topk{k_val}.csv"), index=False)
             print(f"  Exported robustness/{period}_adj_topk{k_val}.csv & edgelist ({len(edgelist_k)} edges)")
+
+    for period, (y0, y1) in ERAS.items():
+        adj_rank = compute_period_rank_network(df_votes, period, y0, y1)
+        adj_rank.to_csv(os.path.join(DATA_ROBUST, f"{period}_adj_rank.csv"))
+        nonzero_rank = (adj_rank.values > 0).sum()
+        print(f"  Exported robustness/{period}_adj_rank.csv ({nonzero_rank} non-zero entries)")
 
     # 3. CEPII Dyadic Attribute Matrices
     print("\n--- Building CEPII Matrices (contig & comlang_off) ---")
