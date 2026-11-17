@@ -92,7 +92,7 @@ def compute_period_network(df_votes, period_name, year_min, year_max, k=3):
     """
     Compute directed weighted network for a given period and k.
     Weight W(A->B) = (years A put B in top-k) / (years A voted and B competed in final).
-    Returns (adj_df, edgelist_df, nodes).
+    Returns (adj_df, edgelist_df, nodes, topk_years_matrix, co_years_matrix).
     """
     df_p = df_votes[(df_votes["year"] >= year_min) & (df_votes["year"] <= year_max)].copy()
 
@@ -139,6 +139,8 @@ def compute_period_network(df_votes, period_name, year_min, year_max, k=3):
 
     # Calculate period weights W(A->B)
     adj_matrix = pd.DataFrame(0.0, index=nodes, columns=nodes)
+    mat_topk_years = pd.DataFrame(0, index=nodes, columns=nodes)
+    mat_co_years = pd.DataFrame(0, index=nodes, columns=nodes)
     edge_records = []
 
     years = sorted(list(year_voters.keys()))
@@ -148,8 +150,10 @@ def compute_period_network(df_votes, period_name, year_min, year_max, k=3):
                 continue
             # Years u voted and v competed in Grand Final
             co_years = sum(1 for yr in years if (u in year_voters[yr] and v in year_performers[yr]))
+            mat_co_years.loc[u, v] = co_years
             if co_years > 0:
                 topk_years = sum(1 for yr in years if (yr, u, v) in year_topk_edges)
+                mat_topk_years.loc[u, v] = topk_years
                 weight = topk_years / co_years
                 adj_matrix.loc[u, v] = weight
                 if weight > 0:
@@ -164,7 +168,7 @@ def compute_period_network(df_votes, period_name, year_min, year_max, k=3):
     edgelist_df = pd.DataFrame(edge_records)
     if not edgelist_df.empty:
         edgelist_df = edgelist_df.sort_values(by="weight", ascending=False).reset_index(drop=True)
-    return adj_matrix, edgelist_df, nodes
+    return adj_matrix, edgelist_df, nodes, mat_topk_years, mat_co_years
 
 def compute_period_rank_network(df_votes, period_name, year_min, year_max):
     """
@@ -325,7 +329,7 @@ def main():
     print("\n--- Computing Main Networks (k=3) ---")
     period_nodes = {}
     for period, (y0, y1) in ERAS.items():
-        adj_topk3, edgelist_topk3, nodes = compute_period_network(df_votes, period, y0, y1, k=3)
+        adj_topk3, edgelist_topk3, nodes, mat_topk_years, mat_co_years = compute_period_network(df_votes, period, y0, y1, k=3)
         period_nodes[period] = nodes
         print(f"{period} ({y0}–{y1}): {len(nodes)} nodes, {len(edgelist_topk3)} non-zero directed edges.")
 
@@ -333,25 +337,32 @@ def main():
         adj_topk3.to_csv(os.path.join(DATA_PROC, f"{period}_adj_topk3.csv"))
         edgelist_topk3.to_csv(os.path.join(DATA_PROC, f"{period}_edgelist_topk3.csv"), index=False)
 
-        # Main binarized directed adjacency matrix: weight >= 0.5
-        adj_bin_t05 = (adj_topk3 >= 0.5).astype(int)
+        # Main binarized directed adjacency matrix: weight >= 0.5 AND topk_years >= 2
+        # (Requires repeat voting support to filter out single-contest anomalies from late entrants)
+        adj_bin_t05 = ((adj_topk3 >= 0.5) & (mat_topk_years >= 2)).astype(int)
         for diag_node in nodes:
             adj_bin_t05.loc[diag_node, diag_node] = 0
         adj_bin_t05.to_csv(os.path.join(DATA_PROC, f"{period}_adj_binary_t05.csv"))
 
-        # Robustness binarized directed adjacency matrix: weight >= 0.33
-        adj_bin_t033 = (adj_topk3 >= 0.33).astype(int)
+        # Robustness binarized directed adjacency matrix: weight >= 0.33 AND topk_years >= 2
+        adj_bin_t033 = ((adj_topk3 >= 0.33) & (mat_topk_years >= 2)).astype(int)
         for diag_node in nodes:
             adj_bin_t033.loc[diag_node, diag_node] = 0
         adj_bin_t033.to_csv(os.path.join(DATA_ROBUST, f"{period}_adj_binary_t033.csv"))
 
-        print(f"  Exported {period}_adj_topk3.csv, {period}_edgelist_topk3.csv, {period}_adj_binary_t05.csv (t=0.5: {adj_bin_t05.values.sum()} edges), and {period}_adj_binary_t033.csv (t=0.33: {adj_bin_t033.values.sum()} edges)")
+        # Also export unconstrained binary matrices for sensitivity reference
+        adj_bin_t05_unconstrained = (adj_topk3 >= 0.5).astype(int)
+        for diag_node in nodes:
+            adj_bin_t05_unconstrained.loc[diag_node, diag_node] = 0
+        adj_bin_t05_unconstrained.to_csv(os.path.join(DATA_ROBUST, f"{period}_adj_binary_t05_unconstrained.csv"))
+
+        print(f"  Exported {period}_adj_topk3.csv, {period}_edgelist_topk3.csv, {period}_adj_binary_t05.csv (t=0.5, topk>=2: {adj_bin_t05.values.sum()} edges), and {period}_adj_binary_t033.csv (t=0.33, topk>=2: {adj_bin_t033.values.sum()} edges)")
 
     # 2. Robustness pipeline (k=2, k=4, and rank-based)
     print("\n--- Computing Robustness Networks (k=2, k=4, and rank-based) ---")
     for k_val in [2, 4]:
         for period, (y0, y1) in ERAS.items():
-            adj_k, edgelist_k, _ = compute_period_network(df_votes, period, y0, y1, k=k_val)
+            adj_k, edgelist_k, _, _, _ = compute_period_network(df_votes, period, y0, y1, k=k_val)
             adj_k.to_csv(os.path.join(DATA_ROBUST, f"{period}_adj_topk{k_val}.csv"))
             edgelist_k.to_csv(os.path.join(DATA_ROBUST, f"{period}_edgelist_topk{k_val}.csv"), index=False)
             print(f"  Exported robustness/{period}_adj_topk{k_val}.csv & edgelist ({len(edgelist_k)} edges)")

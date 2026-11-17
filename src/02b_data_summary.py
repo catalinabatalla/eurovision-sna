@@ -113,7 +113,7 @@ def main():
         r"\end{tabular}",
         r"\begin{tablenotes}",
         r"\footnotesize",
-        r"\item \textit{Note:} $N$ represents active Grand Final participants/voters in the era; $E_{\text{weighted}}$ denotes directed ties where $W(A \to B) > 0$ for top-$k=3$; $E_{t \ge 0.5}$ and $E_{t \ge 0.33}$ are binarized edges at the main ($0.50$) and robustness ($0.33$) persistence thresholds; Contig. and ComLang show the percentage of directed dyads sharing a land border or official language from CEPII GeoDist.",
+        r"\item \textit{Note:} $N$ represents active Grand Final participants/voters in the era; $E_{\text{weighted}}$ denotes directed ties where $W(A \to B) > 0$ for top-$k=3$; $E_{t \ge 0.5}$ and $E_{t \ge 0.33}$ are binarized edges at the main ($0.50$) and robustness ($0.33$) persistence thresholds requiring at least two top-$k$ voting occurrences ($\text{top-}k\text{ years} \ge 2$) to eliminate single-year artifact ties from late joiners; Contig. and ComLang show the percentage of directed dyads sharing a land border or official language from CEPII GeoDist.",
         r"\end{tablenotes}",
         r"\end{table}",
     ])

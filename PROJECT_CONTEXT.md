@@ -15,8 +15,8 @@
   - Directed weighted networks per period.
   - Within each year, draw a binary directed edge A -> B if B is in A's top-k (default k=3, i.e., 8, 10, 12 points).
   - Period edge weight = (years A put B in top-k) / (years A voted and B competed in the Grand Final).
-  - Binarized period networks (for reciprocity & triad census): main threshold `weight >= 0.5` (`{period}_adj_binary_t05.csv`) and robustness threshold `weight >= 0.33` (`robustness/{period}_adj_binary_t033.csv`).
-  - Robustness checks: k=2, k=4, alternative binary threshold (0.33), and rank-based weights.
+  - Binarized period networks (for reciprocity & triad census): main threshold `weight >= 0.5` with `topk_years >= 2` (`{period}_adj_binary_t05.csv`) to eliminate single-year artifact ties from late joiners, and robustness threshold `weight >= 0.33` (`robustness/{period}_adj_binary_t033.csv`).
+  - Robustness checks: k=2, k=4, alternative binary threshold (0.33), rank-based weights (`{period}_adj_rank.csv`), and unconstrained binary threshold.
 - **Hypotheses:**
   - H1: Voting blocs exist in every period (modularity > random networks via permutations).
   - H2: Shared borders and common languages predict votes (QAP), and this effect shifts between jury and televote eras.
