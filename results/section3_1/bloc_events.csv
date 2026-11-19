@@ -1,0 +1,13 @@
+period,bloc_id,size,best_predecessor,jaccard,event,n_new_entrants,new_entrants
+P2,1,14,P1 bloc 3,0.24,new / reorganised,5,"ALB, MKD, MNE, SCG, SRB"
+P2,2,13,P1 bloc 1,0.26,new / reorganised,3,"AND, BGR, SMR"
+P2,3,13,P1 bloc 2,0.56,continues,1,LVA
+P2,4,8,P1 bloc 2,0.05,new / reorganised,7,"ARM, AZE, BLR, CZE, GEO, MDA, UKR"
+P3,1,19,P2 bloc 3,0.52,continues,1,AUS
+P3,2,10,P2 bloc 2,0.44,continues,0,
+P3,3,10,P2 bloc 4,0.64,continues,0,
+P3,4,8,P2 bloc 1,0.57,continues,0,
+P4,1,16,P3 bloc 1,0.67,continues,0,
+P4,2,15,P3 bloc 3,0.47,continues,1,LUX
+P4,3,9,P3 bloc 4,0.7,continues,0,
+P4,4,5,P3 bloc 1,0.2,new / reorganised,0,

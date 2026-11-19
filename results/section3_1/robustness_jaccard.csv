@@ -1,0 +1,13 @@
+period,bloc_id,size,best_predecessor,jaccard,n_new_entrants,event_0.2,event_0.3,event_0.5
+P2,1,14,P1 bloc 3,0.24,5,continues,new,new
+P2,2,13,P1 bloc 1,0.26,3,continues,new,new
+P2,3,13,P1 bloc 2,0.56,1,continues,continues,continues
+P2,4,8,P1 bloc 2,0.05,7,new,new,new
+P3,1,19,P2 bloc 3,0.52,1,continues,continues,continues
+P3,2,10,P2 bloc 2,0.44,0,continues,continues,new
+P3,3,10,P2 bloc 4,0.64,0,continues,continues,continues
+P3,4,8,P2 bloc 1,0.57,0,continues,continues,continues
+P4,1,16,P3 bloc 1,0.67,0,continues,continues,continues
+P4,2,15,P3 bloc 3,0.47,1,continues,continues,new
+P4,3,9,P3 bloc 4,0.7,0,continues,continues,continues
+P4,4,5,P3 bloc 1,0.2,0,continues,new,new

@@ -1,0 +1,5 @@
+period,edges,density,reciprocity,bloc_like_mutual_closed_ratio,bloc_like_mutual_closed_p,021U_common_target_ratio,021U_common_target_p,030T_transitive_ratio,030T_transitive_p
+P1,78,0.066,0.205,2.4,0.003,3.6,0.001,5.2,0.001
+P2,160,0.071,0.312,1.8,0.001,2.3,0.001,2.1,0.002
+P3,156,0.072,0.308,1.8,0.001,3.7,0.001,2.5,0.001
+P4,163,0.082,0.196,1.7,0.005,3.0,0.001,2.9,0.001
