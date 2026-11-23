@@ -1,0 +1,4 @@
+neighbours,jury,televote
+False,0.114,0.106
+True,0.176,0.333
+ratio (neighbour / not),1.5,3.1

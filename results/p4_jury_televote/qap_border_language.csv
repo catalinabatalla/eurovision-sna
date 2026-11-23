@@ -1,0 +1,7 @@
+channel,attribute,QAP_r,p_value
+jury,shared border,0.098,0.0005
+jury,shared language,0.1,0.0005
+televote,shared border,0.287,0.0005
+televote,shared language,0.152,0.0005
+combined,shared border,0.249,0.0005
+combined,shared language,0.176,0.0005

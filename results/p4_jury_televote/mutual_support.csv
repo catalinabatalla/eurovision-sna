@@ -1,0 +1,4 @@
+channel,stable_ties,density,reciprocity,reciprocity_vs_random,mutual_pairs,isolated
+jury,71,0.036,0.085,2.4,3,6
+televote,111,0.056,0.216,3.9,12,2
+combined,101,0.051,0.198,3.9,10,2

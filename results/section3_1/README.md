@@ -3,7 +3,7 @@
 Code, results and figures for **Section 3.1 (Structural Evolution & Voting Blocs Across Eras)** of the group project *How Eurovision voting blocs form, persist and dissolve across eras (1975–2024)*, Network Analysis course, University of Bologna (DHDK), 2026/27.
 
 Author of this part: **HAOPU YIN** (Member 3).
-Data preparation and network construction: Catalina Batalla (see `src/01_download_data.py` and `src/02_build_networks.py`).
+Data preparation and network construction: Catalina Batalla (see `src/01-data_acquisition.ipynb` and `src/02-network_construction.ipynb`).
 
 ## Where the files are
 
@@ -12,7 +12,7 @@ This folder holds the result tables of Section 3.1. The other files of this part
 ```
 eurovision-sna/
 ├── data/processed/bloc_membership.csv   # bloc of each country in each period (used in Section 3.2)
-├── src/03_period_structure.ipynb        # all analyses and figures of Section 3.1 (Google Colab)
+├── src/03-period_structure.ipynb        # all analyses and figures of Section 3.1 (Google Colab)
 ├── results/section3_1/                  # result tables (this folder)
 └── paper/figures/                       # Figures 1–3 of the report (PDF and PNG)
 ```
@@ -70,8 +70,8 @@ Bloc IDs are labels within each period only; bloc 1 in P1 is not the same bloc a
 
 - All stochastic steps use fixed seeds: 100 seeds (0–99) for Louvain on the observed networks, and seed 2024 for every null model and permutation test.
 - Python 3 on Google Colab, NetworkX 3.7, pandas, NumPy, Matplotlib.
-- The P1 split uses `compute_period_network` from `src/02_build_networks.py` (the notebook clones the repository and installs `pyreadstat`).
-- To rerun: open `src/03_period_structure.ipynb` in Google Colab and select *Run all* (about 8–10 minutes).
+- The P1 split networks (`robustness/P1a_adj_topk3.csv`, `P1b_adj_topk3.csv`) are exported by `src/02-network_construction.ipynb`.
+- To rerun: open `src/03-period_structure.ipynb` in Google Colab and select *Run all* (about 8–10 minutes).
 
 ## References for the methods
 
