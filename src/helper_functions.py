@@ -313,6 +313,17 @@ def build_cepii_matrices(all_nodes, cepii_path):
         comlang_map[(o, d)] = l
 
     # Specific historical / microstate completions based on official geography and CEPII GeoDist definitions
+    # Historical Yugoslavia (YUG) in P1 (pre-1992):
+    # CEPII records the 1990s rump Yugoslavia (with post-secession borders like BIH, HRV, MKD).
+    # Pre-1992 SFR Yugoslavia had exactly 7 land borders: ITA, AUT, HUN, ROU, BGR, GRC, ALB.
+    # We clear CEPII's default post-1992 YUG borders and set its true pre-1992 neighbors.
+    yug_p1_neighbors = ["ITA", "AUT", "HUN", "ROU", "BGR", "GRC", "ALB"]
+    for target in all_nodes:
+        if target != "YUG":
+            is_neighbor = 1 if target in yug_p1_neighbors else 0
+            contig_map[("YUG", target)] = is_neighbor
+            contig_map[(target, "YUG")] = is_neighbor
+
     # Monaco (MCO): borders FRA (contig=1), official language French (comlang_off=1 with FRA, BEL, CHE, LUX)
     for target in all_nodes:
         contig_map[("MCO", target)] = 1 if target == "FRA" else contig_map.get(("MCO", target), 0)
