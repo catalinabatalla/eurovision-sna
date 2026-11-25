@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pyreadstat
 import requests
+import matplotlib.patheffects as pe
 from networkx.algorithms import community as nxc
 
 POINT_COLS = ["total_points", "jury_points", "tele_points"]
@@ -505,3 +506,28 @@ def qap_r(Y, X, n_perm=2000, seed=2024):
         idx = rng.permutation(len(Y))
         null.append(np.corrcoef(off(Y[np.ix_(idx, idx)]), off(X))[0, 1])
     return r, (np.sum(np.array(null) >= r) + 1) / (n_perm + 1)
+
+
+# figure style of notebook 04 (same as notebook 03)
+INK, INK2, MUTED = "#0b0b0b", "#52514e", "#b9b8b2"
+GRID = "#ecebe7"
+CH_COLOR = {"jury": "#5b45b5", "televote": "#c98500", "combined": "#8a8984"}
+CH_LABEL = {"jury": "Jury", "televote": "Televote", "combined": "Combined"}
+CH_TICK = {"jury": "Jury", "televote": "Tele-\nvote", "combined": "Com-\nbined"}
+
+def style(ax, title, subtitle, ylabel=None):
+    ax.set_title(title, loc="left", fontsize=9, fontweight="bold", color=INK, pad=14)
+    ax.text(0, 1.02, subtitle, transform=ax.transAxes, fontsize=6.8, color=INK2, va="bottom")
+    if ylabel:
+        ax.set_ylabel(ylabel, fontsize=7.4, color=INK2)
+    ax.tick_params(axis="y", labelsize=6.5, colors=INK2, length=0)
+    ax.tick_params(axis="x", length=0)
+    ax.grid(axis="y", color=GRID, lw=0.6); ax.set_axisbelow(True)
+    for s in ["top", "right", "left"]:
+        ax.spines[s].set_visible(False)
+    ax.spines["bottom"].set_color(MUTED)
+
+def label(ax, x, y, text, dy=4.5, color=INK):
+    ax.annotate(text, (x, y), xytext=(0, dy), textcoords="offset points", ha="center", va="bottom",
+                fontsize=7, color=color, fontweight="bold",
+                path_effects=[pe.withStroke(linewidth=1.8, foreground="white")])

@@ -11,17 +11,16 @@ This folder holds the result tables of Section 3.1. The other files of this part
 
 ```
 eurovision-sna/
-├── data/processed/bloc_membership.csv   # bloc of each country in each period (used in Section 3.2)
-├── src/03-period_structure.ipynb        # all analyses and figures of Section 3.1 (Google Colab)
-├── results/section3_1/                  # result tables (this folder)
-└── paper/figures/                       # Figures 1–3 of the report (PDF and PNG)
+├── src/03-period_structure.ipynb        # all analyses and figures of Section 3.1
+├── data/03_period_structure/            # result tables, including bloc_membership.csv (this folder)
+└── data/03_period_structure/figures/    # Figures 1–3 of the report (PDF and PNG)
 ```
 
 ## Data
 
 The notebook reads the processed networks directly from this repository:
 
-- Folder: `data/processed/`
+- Folder: `data/02_network_construction/`
 - Version used: commit `ef6dca8` (17 November 2026)
 - Main network per period: `{period}_adj_topk3.csv` (directed, weighted; weight = share of years in which country A placed B in its top three, out of the years both were in the final)
 - Binary network of stable ties: `{period}_adj_binary_t05.csv` (weight ≥ 0.5 and at least two top-three years)
@@ -46,7 +45,7 @@ Periods: P1 1975–1996 (jury only), P2 1997–2008 (televoting introduced), P3 
 
 | File | Content |
 |---|---|
-| `../../data/processed/bloc_membership.csv` | Bloc of each country in each period (`iso3`, `period`, `bloc_id`) |
+| `bloc_membership.csv` | Bloc of each country in each period (`iso3`, `period`, `bloc_id`) |
 | `modularity_permutation_test.csv` | Observed modularity, null mean and SD, z-score, p-value |
 | `bloc_overlap.csv` | Jaccard overlap between blocs of consecutive periods |
 | `bloc_events.csv` | Event classification of each bloc and number of new entrants |
@@ -60,7 +59,7 @@ Periods: P1 1975–1996 (jury only), P2 1997–2008 (televoting introduced), P3 
 
 Bloc IDs are labels within each period only; bloc 1 in P1 is not the same bloc as bloc 1 in P2.
 
-## Figures (`paper/figures/`)
+## Figures (`figures/`)
 
 - `fig1_bloc_maps`: voting blocs in the four periods on a schematic map
 - `fig2_bloc_evolution`: evolution of blocs across periods (Jaccard matching and events)
@@ -69,9 +68,9 @@ Bloc IDs are labels within each period only; bloc 1 in P1 is not the same bloc a
 ## Reproducibility
 
 - All stochastic steps use fixed seeds: 100 seeds (0–99) for Louvain on the observed networks, and seed 2024 for every null model and permutation test.
-- Python 3 on Google Colab, NetworkX 3.7, pandas, NumPy, Matplotlib.
+- Python 3, NetworkX 3.7, pandas, NumPy, Matplotlib.
 - The P1 split networks (`robustness/P1a_adj_topk3.csv`, `P1b_adj_topk3.csv`) are exported by `src/02-network_construction.ipynb`.
-- To rerun: open `src/03-period_structure.ipynb` in Google Colab and select *Run all* (about 8–10 minutes).
+- To rerun: open `src/03-period_structure.ipynb` and select *Run all* (about 8–10 minutes).
 
 ## References for the methods
 

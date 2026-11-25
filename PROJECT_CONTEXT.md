@@ -25,10 +25,10 @@
 - **4-Person Team Split & Hand-offs (Catalina, Haopu, Maria, Nur):**
   - Member 1: Intro, Literature, Hypotheses & LaTeX Setup (~1,000 words).
   - Member 2 (Current User): Data Engineering, Network Construction (P1–P4 weighted & binarized + CEPII + robustness) & Section 2 Data/Validity/Reliability (~1,100 words).
-  - Member 3: Per-Period Structural Metrics (density, reciprocity, triad census, in-degree, betweenness, core-periphery, community detection + permutations) & Section 3.1 (~1,200 words). Exports `data/processed/bloc_membership.csv` (`iso3, period, bloc_id`) for H4 so Member 4 reuses the exact same partitions.
+  - Member 3: Per-Period Structural Metrics (density, reciprocity, triad census, in-degree, betweenness, core-periphery, community detection + permutations) & Section 3.1 (~1,200 words). Exports `data/03_period_structure/bloc_membership.csv` (`iso3, period, bloc_id`) for H4 so Member 4 reuses the exact same partitions.
   - Member 4: Cross-Period Dynamics (NMI using Member 3's `bloc_membership.csv`, tie survival), QAP Hypothesis Testing & Section 3.2 + Section 4 Critique/Limitations (~1,300 words).
 - **Milestones:**
-  - Milestone 1 (Nov 20): Member 2 pushes all clean datasets (`data/processed/`) to GitHub.
+  - Milestone 1 (Nov 20): Member 2 pushes all clean datasets (`data/02_network_construction/`) to GitHub.
   - Milestone 2 (Nov 25): Member 3 shares per-period metrics, plots, and `bloc_membership.csv`; Member 4 shares QAP & persistence results.
   - Milestone 3 (Nov 29): Complete first draft in Overleaf following A -> B -> C.
   - Final Submission (Dec 2): Joint editing, word-count check (< 5,000 words), and LaTeX polish.
