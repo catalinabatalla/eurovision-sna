@@ -1,5 +1,6 @@
 """Helper functions shared by the project notebooks."""
 
+import itertools
 import os
 
 import networkx as nx
@@ -7,6 +8,7 @@ import numpy as np
 import pandas as pd
 import pyreadstat
 import requests
+from networkx.algorithms import community as nxc
 
 POINT_COLS = ["total_points", "jury_points", "tele_points"]
 
@@ -431,3 +433,75 @@ def summary_statistics(summary_eras, data_raw, data_proc, data_robust):
         print(f"{period:<6} | {meta['span']:<11} | {n_finals:<6} | {n_nodes:<5} | {n_nonzero_edges:<11} | {mean_weight:<8.3f} | {n_bin_05:<10} | {n_bin_033:<11} | {pct_contig:<7.2f}% | {pct_comlang:<8.2f}%")
 
     return rows
+
+
+def best_louvain(G, n_runs=100):
+    """Louvain with n_runs different seeds; returns the partition (list of sets) with the highest modularity and its Q."""
+    best_blocs, best_q = None, -1
+    for s in range(n_runs):
+        blocs = nxc.louvain_communities(G, weight="weight", seed=s)
+        q = nxc.modularity(G, blocs, weight="weight")
+        if q > best_q:
+            best_q, best_blocs = q, blocs
+    return best_blocs, best_q
+
+
+def shuffle_rows(A, rng):
+    """Null network: each country keeps the weights it gives, but they are shuffled among the other countries."""
+    M = A.values.copy()
+    n = M.shape[0]
+    R = np.zeros_like(M)
+    for i in range(n):
+        others = [j for j in range(n) if j != i]
+        R[i, others] = rng.permutation(M[i, others])
+    return pd.DataFrame(R, index=A.index, columns=A.columns)
+
+
+def uman_random_graph(nodes, n_mutual, n_asym, rng):
+    """U|MAN random graph: the same numbers of mutual, asymmetric and null pairs as the real network, on random pairs."""
+    pairs = list(itertools.combinations(nodes, 2))
+    order = rng.permutation(len(pairs))
+    R = nx.DiGraph()
+    R.add_nodes_from(nodes)
+    for k in order[:n_mutual]:
+        u, v = pairs[k]
+        R.add_edge(u, v)
+        R.add_edge(v, u)
+    for k in order[n_mutual:n_mutual + n_asym]:
+        u, v = pairs[k]
+        if rng.random() < 0.5:
+            R.add_edge(u, v)
+        else:
+            R.add_edge(v, u)
+    return R
+
+
+def coreness_scores(W):
+    """Coreness of each country (0-1): leading eigenvector of the symmetrised weights. Returns (coreness, symmetrised matrix)."""
+    S = (W + W.T) / 2
+    vals, vecs = np.linalg.eigh(S)
+    c = np.abs(vecs[:, -1])
+    return c / c.max(), S
+
+
+def cp_fit(S, c):
+    """Core-periphery fit: correlation between the real ties and the ideal pattern c_i * c_j."""
+    mask = ~np.eye(len(c), dtype=bool)
+    ideal = np.outer(c, c)
+    return np.corrcoef(S[mask], ideal[mask])[0, 1]
+
+
+def off(M):
+    """All the values of a square matrix except the diagonal (a country with itself)."""
+    return M[~np.eye(len(M), dtype=bool)]       # all pairs except a country with itself
+
+
+def qap_r(Y, X, n_perm=2000, seed=2024):
+    """QAP test: correlation between two country-by-country matrices and its p-value, shuffling the countries of Y."""
+    rng = np.random.default_rng(seed)
+    r = np.corrcoef(off(Y), off(X))[0, 1]
+    null = []
+    for _ in range(n_perm):
+        idx = rng.permutation(len(Y))
+        null.append(np.corrcoef(off(Y[np.ix_(idx, idx)]), off(X))[0, 1])
+    return r, (np.sum(np.array(null) >= r) + 1) / (n_perm + 1)
